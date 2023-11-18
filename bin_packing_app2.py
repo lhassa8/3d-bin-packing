@@ -37,20 +37,6 @@ def _get_cqm_stats(cqm) -> str:
 
     return cqm_info_stream.getvalue()
 
-def add_bg_from_url(url):
-    st.markdown(
-         f"""
-         <style>
-         .stApp {{
-             background-image: url({url});
-             background-size: cover;
-             background-position: center;
-         }}
-         </style>
-         """,
-         unsafe_allow_html=True
-     )
-
 
 def _solve_bin_packing_instance(data: dict,
                                 write_to_file: bool,
@@ -81,21 +67,16 @@ def _solve_bin_packing_instance(data: dict,
 
 st.set_page_config(layout="wide")
 
-# Call the function to set the background image
-#add_bg_from_url("https://png.pngtree.com/png-clipart/20230806/original/pngtree-logistic-by-container-truck-harbor-box-road-vector-picture-image_10011303.png")
-
 st.markdown(
-    "<h1 style='text-align: center;'>Transport Container Volumetric Planning Demo</h1>",
+    "<h1 style='text-align: center;'>3D Bin Packing Demo</h1>",
     unsafe_allow_html=True
 )
-
-
 
 run_type = st.sidebar.radio(label="Choose run type:",
                             options=["Random", "File upload"])
 
 solver_type = st.sidebar.radio(label="Choose solver to run problems on:",
-                               options=["Quadratic Model (D-Wave QPU)",
+                               options=["Constrained Quadratic Model",
                                         "CBC (Python-MIP)",
                                         ])
 
@@ -168,39 +149,38 @@ elif run_type == "Random":
         with st.form(key="problem_config"):
             time_limit = st.number_input(label="Hybrid solver time limit(S)",
                                          value=20)
-            transport = st.radio("Select Container", ["40-Foot", "20-Foot", "TRICON", "QUADCON"])
+            transport = st.radio("Select Transport", ["Standard Container", "C-130 Hercules", "C-17 Globemaster", "CH-47 Chinook"])
 
-            bin_length = 40
-            bin_width = 8
-            bin_height = 8
+            def_length = 20
+            def_width = 8
+            def_height = 8
 
-            if transport == "20-Foot":
-                bin_length = 20
-                bin_width = 8
-                bin_height = 8
-            elif transport == "TRICON":
-                bin_length = 7
-                bin_width = 8
-                bin_height = 8
-            elif transport == "QUADCON":
-                bin_length = 5
-                bin_width = 8
-                bin_height = 8
+            if transport == "C-130 Hercules":
+                def_length = 40
+                def_width = 10
+                def_height = 9
+            elif transport == "C-17 Globemaster":
+                def_length = 88
+                def_width = 18
+                def_height = 12
+            elif transport == "CH-47 Chinook":
+                def_length = 30
+                def_width = 8
+                def_height = 6
 
             num_bins = st.number_input("Number of Containers / Bins", min_value=1,
                                        max_value=5)
             num_cases = st.number_input("Number of cases",
                                         min_value=1, max_value=75, value=20)
             case_size_range = st.slider("Case dimension range", min_value=1,
-                                        max_value=4, value=(1, 3))
-            #bin_length = st.number_input("Bin length", min_value=1, max_value=200, value=def_length)
-            #bin_width = st.number_input("Bin width", min_value=1, max_value=200, value=bin_width)
-            #bin_height = st.number_input("Bin height", min_value=1, max_value=200, value=bin_height)
+                                        max_value=30, value=(1, 7))
+            bin_length = st.number_input("Bin length", min_value=1,
+                                         max_value=200, value=def_length)
+            bin_width = st.number_input("Bin width", min_value=1,
+                                        max_value=200, value=def_width)
+            bin_height = st.number_input("Bin height", min_value=1,
+                                         max_value=200, value=def_height)
             
-            # Display bin dimensions as non-editable text inputs with keys tied to the transport variable
-            st.text(f"Bin length: {bin_length}")
-            st.text(f"Bin width: {bin_width}")
-            st.text(f"Bin height: {bin_height}")
 
             form_submit = st.form_submit_button("Run")
             
